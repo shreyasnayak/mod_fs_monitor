@@ -8,54 +8,37 @@
 */
 
 
-extern "C" {
 #include <switch.h>
+
+// switch_event_callback_t
+static switch_status_t fs_event_handler(switch_event_t *event) {
+    // Print the event name
+    const char *event_name = switch_event_name(event->event_id);
+    switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_INFO, "Received event: %s\n", event_name);
+    return SWITCH_STATUS_SUCCESS;
 }
 
-#include <QCoreApplication>
-#include <QTimer>
-
-class QtExample : public QObject {
-    Q_OBJECT
-
-public:
-    QtExample() {
-        QTimer *timer = new QTimer(this);
-        connect(timer, &QTimer::timeout, this, &QtExample::onTimeout);
-        timer->start(1000); // 1-second interval
-    }
-
-public slots:
-    void onTimeout() {
-        switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_INFO, "QtExample timer timeout.\n");
-    }
-};
-
-int qt_example_main(int argc, char *argv[]) {
-    QCoreApplication app(argc, argv);
-    QtExample example;
-    return app.exec();
+extern "C"
+{
+    SWITCH_MODULE_LOAD_FUNCTION(mod_fs_monitor_load);
+    SWITCH_MODULE_SHUTDOWN_FUNCTION(mod_fs_monitor_shutdown);
+    SWITCH_MODULE_DEFINITION(mod_fs_monitor, mod_fs_monitor_load, mod_fs_monitor_shutdown, NULL);
 }
 
-extern "C" {
+SWITCH_MODULE_LOAD_FUNCTION(mod_fs_monitor_load)
+{
+    // Registering event handler for all events
+    switch_event_bind("mod_fs_monitor", SWITCH_EVENT_ALL, SWITCH_EVENT_SUBCLASS_ANY, fs_event_handler, NULL);
 
-// Module load function
-SWITCH_MODULE_LOAD_FUNCTION(mod_fs_monitor_load) {
-    int argc = 0;
-    char *argv[] = {};
-    // std::thread qtThread(qt_example_main, argc, argv);
-    // qtThread.detach();
     switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_INFO, "mod_fs_monitor loaded.\n");
     return SWITCH_STATUS_SUCCESS;
 }
 
-// Module shutdown function
-SWITCH_MODULE_SHUTDOWN_FUNCTION(mod_fs_monitor_shutdown) {
+SWITCH_MODULE_SHUTDOWN_FUNCTION(mod_fs_monitor_shutdown)
+{
+    // Unregister event handler
+    switch_event_unbind_callback(fs_event_handler);
+
     switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_INFO, "mod_fs_monitor shutting down.\n");
     return SWITCH_STATUS_SUCCESS;
-}
-
-// Module definition
-SWITCH_MODULE_DEFINITION(mod_fs_monitor, mod_fs_monitor_load, mod_fs_monitor_shutdown, NULL);
-
 }
