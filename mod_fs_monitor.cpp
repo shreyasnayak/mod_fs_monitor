@@ -27,6 +27,10 @@ extern "C"
 SWITCH_MODULE_LOAD_FUNCTION(mod_fs_monitor_load)
 {
     *module_interface = switch_loadable_module_create_module_interface(pool, modname);
+    if (switch_event_bind(modname, SWITCH_EVENT_ALL, SWITCH_EVENT_SUBCLASS_ANY, event_handler, NULL) != SWITCH_STATUS_SUCCESS) {
+        switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR, "Couldn't bind!\n");
+        return SWITCH_STATUS_GENERR;
+    }
 
     switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_INFO, "mod_fs_monitor loaded.\n");
     return SWITCH_STATUS_SUCCESS;
@@ -34,12 +38,6 @@ SWITCH_MODULE_LOAD_FUNCTION(mod_fs_monitor_load)
 
 SWITCH_MODULE_SHUTDOWN_FUNCTION(mod_fs_monitor_shutdown)
 {
-    // Unregister event handler
-    if (switch_event_bind(modname, SWITCH_EVENT_ALL, SWITCH_EVENT_SUBCLASS_ANY, event_handler, NULL) != SWITCH_STATUS_SUCCESS) {
-        switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR, "Couldn't bind!\n");
-        return SWITCH_STATUS_GENERR;
-    }
-
     switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_INFO, "mod_fs_monitor shutting down.\n");
     return SWITCH_STATUS_SUCCESS;
 }
