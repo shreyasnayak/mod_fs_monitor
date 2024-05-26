@@ -1,12 +1,19 @@
 /** @file mod_fs_monitor.cpp
  *
- * @copyright (C) 2024
+ * @brief FreeSWITCH Call Event Monitor Module Implementation
+ *
+ * This file contains the implementation of the FreeSWITCH Call Event Monitor 
+ * module, which provides functionality to monitor call events within the 
+ * FreeSWITCH telephony platform. The module listens for call events such as 
+ * call creation, termination, and state changes, and prints relevant information
+ * to the console or a log file.
+ *
  * @date 2024.05.24
  * @version 1.0.0
- * @author Shreyas Nayak <shreyasnayak21@gmail.com>
+ * @author
+ * Shreyas Nayak <shreyasnayak21@gmail.com>
  *
-*/
-
+ */
 
 #include <switch.h>
 
@@ -38,6 +45,7 @@ SWITCH_MODULE_LOAD_FUNCTION(mod_fs_monitor_load)
 
 SWITCH_MODULE_SHUTDOWN_FUNCTION(mod_fs_monitor_shutdown)
 {
+    switch_event_unbind_callback(event_handler);
     switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_INFO, "mod_fs_monitor shutting down.\n");
     return SWITCH_STATUS_SUCCESS;
 }
