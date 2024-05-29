@@ -16,12 +16,9 @@
  */
 
 #include <switch.h>
+#include "fsmodule.h"
 
-static void event_handler(switch_event_t *event)
-{
-    const char *event_name = switch_event_name(event->event_id);
-    switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_INFO, "::::::::::::::::::::::::::::::::::::::::::::::::::::::: Received event: %s\n", event_name);
-}
+FSModule* instance = nullptr;
 
 extern "C"
 {
@@ -34,9 +31,12 @@ extern "C"
 SWITCH_MODULE_LOAD_FUNCTION(mod_fs_monitor_load)
 {
     *module_interface = switch_loadable_module_create_module_interface(pool, modname);
-    if (switch_event_bind(modname, SWITCH_EVENT_ALL, SWITCH_EVENT_SUBCLASS_ANY, event_handler, NULL) != SWITCH_STATUS_SUCCESS) {
-        switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR, "Couldn't bind!\n");
-        return SWITCH_STATUS_GENERR;
+    instance = FSModule::GetInstance();
+    if (!instance->initialize(modname,module_interface)) {
+        switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR, "mod_fs_monitor initialize failed.\n");
+        instance->shutdown();
+        instance = nullptr;
+        return SWITCH_STATUS_FALSE;
     }
 
     switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_INFO, "mod_fs_monitor loaded.\n");
@@ -45,7 +45,10 @@ SWITCH_MODULE_LOAD_FUNCTION(mod_fs_monitor_load)
 
 SWITCH_MODULE_SHUTDOWN_FUNCTION(mod_fs_monitor_shutdown)
 {
-    switch_event_unbind_callback(event_handler);
+    if(instance!=nullptr)
+    {
+        instance->shutdown();
+    }
     switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_INFO, "mod_fs_monitor shutting down.\n");
     return SWITCH_STATUS_SUCCESS;
 }

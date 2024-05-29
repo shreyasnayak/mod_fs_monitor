@@ -31,7 +31,8 @@ include_directories(${Qt5Core_INCLUDE_DIRS})
 set(LIBS ${FREESWITCH_LIBRARY} Qt6::Core)
 
 # Define the module
-add_library(mod_fs_monitor MODULE ${SOURCES})
+add_library(mod_fs_monitor MODULE ${SOURCES}
+    fsmodule.h fsmodule.cpp)
 
 # Link the libraries
 target_link_libraries(mod_fs_monitor ${LIBS})
