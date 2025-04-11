@@ -48,7 +48,7 @@ Before building and running `fs_monitor`, ensure the following are installed:
 
 Once installed, load the `fs_monitor` module into your FreeSWITCH instance. It will hook into FreeSWITCH events and begin 
 
-> For advanced configuration and module usage, refer to the [FreeSWITCH Module Documentation](https://freeswitch.org/confluence/display/FREESWITCH/FreeSWITCH+Modules).
+> For advanced configuration and module usage, refer to the [FreeSWITCH Module Documentation]([https://freeswitch.org/confluence/display/FREESWITCH/FreeSWITCH+Modules](https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Modules/)).
 
 ## License
 
